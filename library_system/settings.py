@@ -1,4 +1,5 @@
 import os
+import datetime
 from pathlib import Path
 from dotenv import load_dotenv
 
@@ -97,12 +98,17 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 # Default Primary Key Field Type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
+#######################################
+# Django Rest Framework configuration #
+#######################################
 # REST Framework
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.AllowAny',
-    ]
+    ],
+    'DEFAULT_PAGINATION_CLASS':
+    'rest_framework.pagination.LimitOffsetPagination',
+    'PAGE_SIZE': 20,
 }
 
 # Celery Configuration
@@ -111,6 +117,14 @@ CELERY_RESULT_BACKEND = os.getenv('CELERY_RESULT_BACKEND', 'redis://redis:6379/0
 CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
+CELERY_BEAT_SCHEDULE = {
+    'send-overdue-book-emails': {
+        'task': 'library.tasks.check_overdue_loans',
+        'schedule': datetime.timedelta(days=1)
+    },
+}
+
+
 
 # Email Configuration
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'  # For development
